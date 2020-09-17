@@ -44,7 +44,7 @@ type imageJSONLine struct {
 	CreatedAt  string
 }
 
-func addImages(l *tview.List) {
+func grabImages() []imageJSONLine {
 	cmd := exec.Command(cmdType, "images", "--format", `{"Tag":"{{.Tag}}","Repository":"{{.Repository}}","ID":"{{.ID}}","Size":"{{.Size}}","CreatedAt":"{{.CreatedAt}}"}`)
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -77,17 +77,18 @@ func addImages(l *tview.List) {
 		}
 		return images[i].Repository < images[j].Repository
 	})
-	for _, v := range images {
-		addFuncItem(l, fmt.Sprintf("%s:%s", v.Repository, v.Tag), "", 0)
-	}
+	return images
 }
 
 func main() {
 	flag.StringVar(&cmdType, "type", cmdType, "type of cmd to run (docker, podman) 'images' with")
 	flag.Parse()
 	app := tview.NewApplication()
+	images := grabImages()
 	list := tview.NewList()
-	addImages(list)
+	for _, v := range images {
+		addFuncItem(list, fmt.Sprintf("%s:%s", v.Repository, v.Tag), "", 0)
+	}
 	list.AddItem("Quit", "Press to exit", 'q', func() {
 		app.Stop()
 	})
