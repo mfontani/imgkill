@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os/exec"
 	"sort"
-	"strings"
+	// "strings"
 
 	"github.com/gdamore/tcell"
 	"github.com/rivo/tview"
@@ -61,13 +61,15 @@ func grabImages() []imageJSONLine {
 			if err := json.Unmarshal(line, &v); err != nil {
 				panic(fmt.Sprintf("Unmarshalling '%v': %v", line, err))
 			}
-			if v.Repository != "<none>" && v.Tag != "<none>" && v.Tag != "latest" {
-				if (cmdType == "docker" && strings.HasPrefix(v.Repository, "local/mfontani/") && !strings.HasPrefix(v.Repository, "local/mfontani/base/")) ||
-					(cmdType == "podman" && strings.HasPrefix(v.Repository, "localhost/mfontani/") && !strings.HasPrefix(v.Repository, "localhost/mfontani/base/")) {
-					images = append(images, v)
-					// addFuncItem(l, fmt.Sprintf("%s:%s", v.Repository, v.Tag), "", 0)
-					// fmt.Printf("Added: '%s:%s'\n", v.Repository, v.Tag)
-				}
+			if v.Repository != "<none>" && v.Tag != "<none>" {
+				// if v.Tag != "latest" {
+				// if (cmdType == "docker" && strings.HasPrefix(v.Repository, "local/mfontani/") && !strings.HasPrefix(v.Repository, "local/mfontani/base/")) ||
+				// 	(cmdType == "podman" && strings.HasPrefix(v.Repository, "localhost/mfontani/") && !strings.HasPrefix(v.Repository, "localhost/mfontani/base/")) {
+				images = append(images, v)
+				// addFuncItem(l, fmt.Sprintf("%s:%s", v.Repository, v.Tag), "", 0)
+				// fmt.Printf("Added: '%s:%s'\n", v.Repository, v.Tag)
+				// }
+				// }
 			}
 		}
 	}
@@ -120,7 +122,7 @@ func main() {
 					SetSelectable(false)
 				root.AddChild(currTree)
 			}
-			leaf := tview.NewTreeNode(fmt.Sprintf("%s:%-20s %s %s %s", v.Repository, v.Tag, v.ID, v.CreatedAt, v.Size)).
+			leaf := tview.NewTreeNode(fmt.Sprintf("%-40s %s %-30s %s", v.Tag, v.ID, v.CreatedAt, v.Size)).
 				SetSelectable(true).
 				SetColor(clrNormal).
 				SetReference(fmt.Sprintf("%s:%s", v.Repository, v.Tag))
