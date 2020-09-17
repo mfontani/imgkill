@@ -83,59 +83,68 @@ func grabImages() []imageJSONLine {
 var clrNormal = tcell.ColorWhite
 var clrSelected = tcell.ColorGreen
 
+var optList = false
+
 func main() {
 	flag.StringVar(&cmdType, "type", cmdType, "type of cmd to run (docker, podman) 'images' with")
+	flag.BoolVar(&optList, "list", optList, "display as list instead of as tree")
 	flag.Parse()
 	app := tview.NewApplication()
 	images := grabImages()
-	// list := tview.NewList()
-	// for _, v := range images {
-	// 	addFuncItem(list, fmt.Sprintf("%s:%s", v.Repository, v.Tag), "", 0)
-	// }
-	// list.AddItem("Quit", "Press to exit", 'q', func() {
-	// 	app.Stop()
-	// })
-	// if err := app.SetRoot(list, true).SetFocus(list).Run(); err != nil {
-	// 	panic(err)
-	// }
-	root := tview.NewTreeNode(cmdType)
-	tree := tview.NewTreeView().
-		SetRoot(root).
-		SetCurrentNode(root)
 
-	doneRepo := make(map[string]bool)
-	var currTree *tview.TreeNode
-	for _, v := range images {
-		if !doneRepo[v.Repository] {
-			currTree = tview.NewTreeNode(v.Repository).
-				SetSelectable(false)
-			root.AddChild(currTree)
+	if optList {
+		list := tview.NewList()
+		for _, v := range images {
+			addFuncItem(list, fmt.Sprintf("%s:%s", v.Repository, v.Tag), "", 0)
 		}
-		leaf := tview.NewTreeNode(fmt.Sprintf("%s:%-20s %s %s %s", v.Repository, v.Tag, v.ID, v.CreatedAt, v.Size)).
-			SetSelectable(true).
-			SetColor(clrNormal).
-			SetReference(fmt.Sprintf("%s:%s", v.Repository, v.Tag))
-		currTree.AddChild(leaf)
-		doneRepo[v.Repository] = true
-	}
-	tree.SetSelectedFunc(func(node *tview.TreeNode) {
-		mainText := node.GetReference().(string)
-		if selectedImages[mainText] {
-			delete(selectedImages, mainText)
-			node.SetColor(clrNormal)
-		} else {
-			selectedImages[mainText] = true
-			node.SetColor(clrSelected)
-		}
-	})
-	tree.SetDoneFunc(func(k tcell.Key) {
-		if k == tcell.KeyEscape {
+		list.AddItem("Quit", "Press to exit", 'q', func() {
 			app.Stop()
+		})
+		list.SetDoneFunc(func() {
+			app.Stop()
+		})
+		if err := app.SetRoot(list, true).SetFocus(list).Run(); err != nil {
+			panic(err)
 		}
-	})
+	} else {
+		root := tview.NewTreeNode(cmdType)
+		tree := tview.NewTreeView().
+			SetRoot(root).
+			SetCurrentNode(root)
 
-	if err := app.SetRoot(tree, true).SetFocus(tree).Run(); err != nil {
-		panic(err)
+		doneRepo := make(map[string]bool)
+		var currTree *tview.TreeNode
+		for _, v := range images {
+			if !doneRepo[v.Repository] {
+				currTree = tview.NewTreeNode(v.Repository).
+					SetSelectable(false)
+				root.AddChild(currTree)
+			}
+			leaf := tview.NewTreeNode(fmt.Sprintf("%s:%-20s %s %s %s", v.Repository, v.Tag, v.ID, v.CreatedAt, v.Size)).
+				SetSelectable(true).
+				SetColor(clrNormal).
+				SetReference(fmt.Sprintf("%s:%s", v.Repository, v.Tag))
+			currTree.AddChild(leaf)
+			doneRepo[v.Repository] = true
+		}
+		tree.SetSelectedFunc(func(node *tview.TreeNode) {
+			mainText := node.GetReference().(string)
+			if selectedImages[mainText] {
+				delete(selectedImages, mainText)
+				node.SetColor(clrNormal)
+			} else {
+				selectedImages[mainText] = true
+				node.SetColor(clrSelected)
+			}
+		})
+		tree.SetDoneFunc(func(k tcell.Key) {
+			if k == tcell.KeyEscape {
+				app.Stop()
+			}
+		})
+		if err := app.SetRoot(tree, true).SetFocus(tree).Run(); err != nil {
+			panic(err)
+		}
 	}
 
 	if len(selectedImages) > 0 {
