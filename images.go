@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os/exec"
 	"sort"
+	"strings"
 )
 
 // "docker images ..." returns JSON that unmarshals to this:
@@ -15,6 +16,14 @@ type imageJSONLine struct {
 	ID         string
 	Size       string
 	CreatedAt  string
+}
+
+// Should this image/repository be skipped?
+func skipImage(img imageJSONLine) bool {
+	if onlyRepository != "" && !strings.Contains(img.Repository, onlyRepository) {
+		return true
+	}
+	return false
 }
 
 func grabImages() []imageJSONLine {
@@ -33,7 +42,9 @@ func grabImages() []imageJSONLine {
 				panic(fmt.Sprintf("Unmarshalling '%v': %v", line, err))
 			}
 			if v.Repository != "<none>" && v.Tag != "<none>" {
-				images = append(images, v)
+				if !skipImage(v) {
+					images = append(images, v)
+				}
 			}
 		}
 	}

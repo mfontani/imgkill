@@ -14,12 +14,16 @@ var selectedImages = make(map[string]bool)
 // What "FOO images" command to run (i.e. "docker images ..." or "podman ...")
 var cmdType string = "docker"
 
+// Filter to only show images whose Repository contains this string
+var onlyRepository string = ""
+
 // Whether the user wants to see a _list_ or a _tree_ of images. Tree is default.
 var optList = false
 
 func main() {
 	flag.StringVar(&cmdType, "type", cmdType, "type of cmd to run (docker, podman) 'images' with")
 	flag.BoolVar(&optList, "list", optList, "display as list instead of as tree")
+	flag.StringVar(&onlyRepository, "only", onlyRepository, "only show Repository matching this")
 	flag.Parse()
 	app := tview.NewApplication()
 	images := grabImages()
