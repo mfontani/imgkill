@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strings"
 
 	"github.com/rivo/tview"
 )
@@ -17,6 +18,21 @@ var cmdType string = "docker"
 // Filter to only show images whose Repository contains this string
 var onlyRepository string = ""
 
+type arrayFlags []string
+
+func (af *arrayFlags) String() string {
+	return strings.Join(*af, ", ")
+}
+
+func (af *arrayFlags) Set(value string) error {
+	*af = append(*af, value)
+	return nil
+}
+
+// Whether the user wants to _remove_ any images Repository matching these
+// strings from the list
+var skipRepositories arrayFlags
+
 // Whether the user wants to see a _list_ or a _tree_ of images. Tree is default.
 var optList = false
 
@@ -24,6 +40,7 @@ func main() {
 	flag.StringVar(&cmdType, "type", cmdType, "type of cmd to run (docker, podman) 'images' with")
 	flag.BoolVar(&optList, "list", optList, "display as list instead of as tree")
 	flag.StringVar(&onlyRepository, "only", onlyRepository, "only show Repository matching this")
+	flag.Var(&skipRepositories, "skip", "skip showing repositories matching any")
 	flag.Parse()
 	app := tview.NewApplication()
 	images := grabImages()

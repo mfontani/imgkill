@@ -23,6 +23,13 @@ func skipImage(img imageJSONLine) bool {
 	if onlyRepository != "" && !strings.Contains(img.Repository, onlyRepository) {
 		return true
 	}
+	if len(skipRepositories) > 0 {
+		for _, v := range skipRepositories {
+			if strings.Contains(img.Repository, v) {
+				return true
+			}
+		}
+	}
 	return false
 }
 
