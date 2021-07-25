@@ -1,4 +1,4 @@
-module darkpan.com/mfontani/imgkill
+module github.com/mfontani/imgkill
 
 go 1.15
 
