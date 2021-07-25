@@ -4,11 +4,15 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/rivo/tview"
 )
+
+// Version contains the binary version. This is added at build time.
+var Version = "uncommitted"
 
 // Keep list of selected images (repository, tag) in a map, to make it easier
 // to gauge whether an image is or isn't in the list.
@@ -42,6 +46,10 @@ var optList = false
 var promptForDeletion = false
 
 func main() {
+	if os.Args[1] == "-version" || os.Args[1] == "--version" {
+		fmt.Printf("imgkill %s\n", Version)
+		os.Exit(0)
+	}
 	flag.StringVar(&cmdType, "type", cmdType, "type of cmd to run (docker, podman) 'images' with")
 	flag.BoolVar(&optList, "list", optList, "display as list instead of as tree")
 	flag.StringVar(&onlyRepository, "only", onlyRepository, "only show Repository matching this")
