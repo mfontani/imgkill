@@ -46,9 +46,11 @@ var optList = false
 var promptForDeletion = false
 
 func main() {
-	if os.Args[1] == "-version" || os.Args[1] == "--version" {
-		fmt.Printf("imgkill %s\n", Version)
-		os.Exit(0)
+	if len(os.Args) > 1 {
+		if os.Args[1] == "-version" || os.Args[1] == "--version" {
+			fmt.Printf("imgkill %s\n", Version)
+			os.Exit(0)
+		}
 	}
 	flag.StringVar(&cmdType, "type", cmdType, "type of cmd to run (docker, podman) 'images' with")
 	flag.BoolVar(&optList, "list", optList, "display as list instead of as tree")
