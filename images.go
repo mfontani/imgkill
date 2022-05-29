@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"sort"
 	"strings"
+
+	"github.com/mcuadros/go-version"
 )
 
 // "docker images ..." returns JSON that unmarshals to this:
@@ -57,7 +59,7 @@ func grabImages() []imageJSONLine {
 	}
 	sort.SliceStable(images, func(i, j int) bool {
 		if images[i].Repository == images[j].Repository {
-			return images[i].Tag > images[j].Tag
+			return version.Compare(images[i].Tag, images[j].Tag, ">")
 		}
 		return images[i].Repository < images[j].Repository
 	})
