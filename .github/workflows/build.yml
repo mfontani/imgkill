@@ -14,6 +14,8 @@ jobs:
     container: mfontani/gobuzz
     steps:
       - uses: actions/checkout@v2
+      - name: set git dir as safe
+        run: git config --global --add safe.directory '*'
       - run: go mod download
       - run: go vet
       - run: go test ./...
